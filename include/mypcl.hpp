@@ -172,6 +172,7 @@ namespace mypcl
             pose_vec[i].q = q0.inverse() * pose_vec[i].q;
 #endif
 #ifdef TUM_FORMAT
+            file << std::fixed << std::setprecision(4);
             file << pose_vec[i].timestamp << " " << pose_vec[i].t.x() << " " << pose_vec[i].t.y() << " " << pose_vec[i].t.z() << " "
                  << pose_vec[i].q.x() << " " << pose_vec[i].q.y() << " " << pose_vec[i].q.z() << " " << pose_vec[i].q.w();
 #else
