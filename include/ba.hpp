@@ -19,7 +19,7 @@
 
 const double one_three = (1.0 / 3.0);
 
-int layer_limit = 2;    // the maximum number of voxel recut times in LiDAR BA.
+int layer_limit = 2;
 int MIN_PT = 15;
 int thd_num = 16;
 

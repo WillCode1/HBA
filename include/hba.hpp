@@ -18,6 +18,11 @@
 #include "tools.hpp"
 #include "ba.hpp"
 
+double _downsample_size = 0.1;
+double _voxel_size = 4.0;
+double _eigen_ratio = 0.1;
+double _reject_ratio = 0.05;
+
 class LAYER
 {
 public:
@@ -33,17 +38,15 @@ public:
     std::vector<VEC(6)> hessians;
     std::vector<pcl::PointCloud<PointType>::Ptr> pcds;
 
-    // 非重合平面之间变为重合:
-    // 我的建议是试试更严格的参数，比如voxel_size=1m, eigen_ratio=0.05, downsample_size=0.05.
     LAYER()
     {
         pose_size = 0;
         layer_num = 1;
         max_iter = 10;
-        downsample_size = 0.1;
-        voxel_size = 4.0;   // initial voxel size used in LiDAR BA
-        eigen_ratio = 0.1;  // threshold used to determine whether this voxel contains valid plane feature.
-        reject_ratio = 0.05;// threshold used to reject the largest certain amount of voxels (residuals) used in optimization.
+        downsample_size = _downsample_size;
+        voxel_size = _voxel_size;
+        eigen_ratio = _eigen_ratio;
+        reject_ratio = _reject_ratio;
         pose_vec.clear();
         mthreads.clear();
         pcds.clear();
@@ -157,7 +160,7 @@ public:
             pose_size_ += layers[i - 1].tail == 0 ? layers[i - 1].left_gap_num : (layers[i - 1].left_gap_num + 1);
             layers[i].init_parameter(pose_size_);
             layers[i].init_storage(total_layer_num);
-            layers[i].data_path = layers[i - 1].data_path + "process1/";
+            // layers[i].data_path = layers[i - 1].data_path + "process1/";
         }
         printf("HBA init done!\n");
     }

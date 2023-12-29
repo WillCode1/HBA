@@ -29,6 +29,11 @@ using namespace std;
 using namespace Eigen;
 
 int pcd_name_fill_num = 0;
+extern int layer_limit;
+extern double _downsample_size;
+extern double _voxel_size;
+extern double _eigen_ratio;
+extern double _reject_ratio;
 
 void cut_voxel(unordered_map<VOXEL_LOC, OCTO_TREE_ROOT *> &feat_map,
                pcl::PointCloud<PointType> &feat_pt,
@@ -518,6 +523,11 @@ int main(int argc, char **argv)
     ros::param::param("common/pcd_name_fill_num", pcd_name_fill_num, 6);
     ros::param::param("common/data_path", data_path, std::string(""));
     ros::param::param("common/thread_num", thread_num, 16);
+    ros::param::param("common/layer_limit", layer_limit, 2);
+    ros::param::param("common/downsample_size", _downsample_size, 0.1);
+    ros::param::param("common/voxel_size", _voxel_size, 4.0);
+    ros::param::param("common/eigen_ratio", _eigen_ratio, 0.1);
+    ros::param::param("common/reject_ratio", _reject_ratio, 0.05);
 
     HBA hba(total_layer_num, data_path, thread_num);
     for (int i = 0; i < total_layer_num - 1; i++)
