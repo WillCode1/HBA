@@ -8,6 +8,8 @@
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 
+#define USE_RTK
+
 typedef std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>> vector_vec3d;
 typedef std::vector<Eigen::Quaterniond, Eigen::aligned_allocator<Eigen::Quaterniond>> vector_quad;
 // typedef pcl::PointXYZINormal PointType;
@@ -146,8 +148,10 @@ namespace mypcl
 
         for (size_t i = 0; i < pose_vec.size(); i++)
         {
+#ifndef USE_RTK
             pose_vec[i].t << q0.inverse() * (pose_vec[i].t - t0);
             pose_vec[i].q = q0.inverse() * pose_vec[i].q;
+#endif
             file << pose_vec[i].t(0) << " " << pose_vec[i].t(1) << " " << pose_vec[i].t(2) << " "
                  << pose_vec[i].q.w() << " " << pose_vec[i].q.x() << " " << pose_vec[i].q.y() << " " << pose_vec[i].q.z();
             if (i < pose_vec.size() - 1)
