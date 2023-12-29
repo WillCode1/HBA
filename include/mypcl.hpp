@@ -9,7 +9,7 @@
 #include <Eigen/StdVector>
 
 #define USE_RTK
-// #define TUM_FORMAT
+#define TUM_FORMAT
 
 typedef std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>> vector_vec3d;
 typedef std::vector<Eigen::Quaterniond, Eigen::aligned_allocator<Eigen::Quaterniond>> vector_quad;
@@ -71,6 +71,9 @@ namespace mypcl
 #else
             file >> tx >> ty >> tz >> qw >> qx >> qy >> qz;
 #endif
+            if (file.fail())
+                break;
+
             Eigen::Quaterniond q(qw, qx, qy, qz);
             Eigen::Vector3d t(tx, ty, tz);
             pose_vec.push_back(pose(timestamp, qe * q, qe * t + te));
