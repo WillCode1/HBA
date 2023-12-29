@@ -147,15 +147,9 @@ namespace mypcl
         for (size_t i = 0; i < pose_vec.size(); i++)
         {
             pose_vec[i].t << q0.inverse() * (pose_vec[i].t - t0);
-            pose_vec[i].q.w() = (q0.inverse() * pose_vec[i].q).w();
-            pose_vec[i].q.x() = (q0.inverse() * pose_vec[i].q).x();
-            pose_vec[i].q.y() = (q0.inverse() * pose_vec[i].q).y();
-            pose_vec[i].q.z() = (q0.inverse() * pose_vec[i].q).z();
-            file << pose_vec[i].t(0) << " "
-                 << pose_vec[i].t(1) << " "
-                 << pose_vec[i].t(2) << " "
-                 << pose_vec[i].q.w() << " " << pose_vec[i].q.x() << " "
-                 << pose_vec[i].q.y() << " " << pose_vec[i].q.z();
+            pose_vec[i].q = q0.inverse() * pose_vec[i].q;
+            file << pose_vec[i].t(0) << " " << pose_vec[i].t(1) << " " << pose_vec[i].t(2) << " "
+                 << pose_vec[i].q.w() << " " << pose_vec[i].q.x() << " " << pose_vec[i].q.y() << " " << pose_vec[i].q.z();
             if (i < pose_vec.size() - 1)
                 file << "\n";
         }
@@ -170,8 +164,7 @@ namespace mypcl
         {
             file << std::setprecision(18) << lidar_times[i] << " " << std::setprecision(6)
                  << pose_vec[i].t(0) << " " << pose_vec[i].t(1) << " " << pose_vec[i].t(2) << " "
-                 << pose_vec[i].q.x() << " " << pose_vec[i].q.y() << " "
-                 << pose_vec[i].q.z() << " " << pose_vec[i].q.w();
+                 << pose_vec[i].q.x() << " " << pose_vec[i].q.y() << " " << pose_vec[i].q.z() << " " << pose_vec[i].q.w();
             if (i < pose_vec.size() - 1)
                 file << "\n";
         }
