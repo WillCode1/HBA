@@ -1,0 +1,9 @@
+common:
+    data_path: "/home/will/data/HBA/PCD2/"
+    total_layer_num: 3
+    pcd_name_fill_num: 6    # set 5 for kitti07 and 0 for park
+    thread_num: 16
+
+visualize:
+    downsample_size: 0.1
+    marker_size: 0.5

@@ -47,10 +47,10 @@ int main(int argc, char **argv)
     double downsample_size, marker_size;
     int pcd_name_fill_num;
 
-    nh.getParam("file_path", file_path);
-    nh.getParam("downsample_size", downsample_size);
-    nh.getParam("pcd_name_fill_num", pcd_name_fill_num);
-    nh.getParam("marker_size", marker_size);
+    ros::param::param("common/data_path", file_path, std::string(""));
+    ros::param::param("common/pcd_name_fill_num", pcd_name_fill_num, 5);
+    ros::param::param("visualize/downsample_size", downsample_size, 0.1);
+    ros::param::param("visualize/marker_size", marker_size, 0.5);
 
     sensor_msgs::PointCloud2 debugMsg, cloudMsg, outMsg;
     vector<mypcl::pose> pose_vec;

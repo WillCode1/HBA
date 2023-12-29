@@ -514,10 +514,10 @@ int main(int argc, char **argv)
     int total_layer_num, thread_num;
     string data_path;
 
-    nh.getParam("total_layer_num", total_layer_num);
-    nh.getParam("pcd_name_fill_num", pcd_name_fill_num);
-    nh.getParam("data_path", data_path);
-    nh.getParam("thread_num", thread_num);
+    ros::param::param("common/total_layer_num", total_layer_num, 3);
+    ros::param::param("common/pcd_name_fill_num", pcd_name_fill_num, 6);
+    ros::param::param("common/data_path", data_path, std::string(""));
+    ros::param::param("common/thread_num", thread_num, 16);
 
     HBA hba(total_layer_num, data_path, thread_num);
     for (int i = 0; i < total_layer_num - 1; i++)
