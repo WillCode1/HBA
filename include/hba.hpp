@@ -136,12 +136,14 @@ public:
     int thread_num, total_layer_num;
     std::vector<LAYER> layers;
     std::string data_path;
+    std::string pose_file_name;
 
-    HBA(int total_layer_num_, std::string data_path_, int thread_num_)
+    HBA(int total_layer_num_, std::string data_path_, std::string pose_file_name_, int thread_num_)
     {
         total_layer_num = total_layer_num_;
         thread_num = thread_num_;
         data_path = data_path_;
+        pose_file_name = pose_file_name_;
 
         layers.resize(total_layer_num);
         for (int i = 0; i < total_layer_num; i++)
@@ -150,7 +152,7 @@ public:
             layers[i].thread_num = thread_num;
         }
         layers[0].data_path = data_path;
-        layers[0].pose_vec = mypcl::read_pose(data_path + "pose.txt");
+        layers[0].pose_vec = mypcl::read_pose(data_path + pose_file_name);
         layers[0].init_parameter();
         layers[0].init_storage(total_layer_num);
 
@@ -271,7 +273,7 @@ public:
             gtsam::Pose3 pose = results.at(i).cast<gtsam::Pose3>();
             assign_qt(init_pose[i].q, init_pose[i].t, Eigen::Quaterniond(pose.rotation().matrix()), pose.translation());
         }
-        mypcl::write_pose(init_pose, data_path);
+        mypcl::write_pose(init_pose, data_path + pose_file_name);
         printf("pgo complete\n");
     }
 };

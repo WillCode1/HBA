@@ -29,6 +29,8 @@ using namespace std;
 using namespace Eigen;
 
 int pcd_name_fill_num = 0;
+std::string pcd_prefix;
+
 extern int layer_limit;
 extern double _downsample_size;
 extern double _voxel_size;
@@ -112,7 +114,7 @@ void parallel_comp(LAYER &layer, int thread_id, LAYER &next_layer)
                     if (loop == 0)
                     {
                         pcl::PointCloud<PointType>::Ptr pc(new pcl::PointCloud<PointType>);
-                        mypcl::loadPCD(layer.data_path, pcd_name_fill_num, pc, j, "pcd/");
+                        mypcl::loadPCD(layer.data_path, pcd_name_fill_num, pc, j, pcd_prefix);
                         raw_pc[j - i * GAP] = pc;
                     }
                     src_pc[j - i * GAP] = (*raw_pc[j - i * GAP]).makeShared();
@@ -221,7 +223,7 @@ void parallel_tail(LAYER &layer, int thread_id, LAYER &next_layer)
                     if (loop == 0)
                     {
                         pcl::PointCloud<PointType>::Ptr pc(new pcl::PointCloud<PointType>);
-                        mypcl::loadPCD(layer.data_path, pcd_name_fill_num, pc, j, "pcd/");
+                        mypcl::loadPCD(layer.data_path, pcd_name_fill_num, pc, j, pcd_prefix);
                         raw_pc[j - i * GAP] = pc;
                     }
                     src_pc[j - i * GAP] = (*raw_pc[j - i * GAP]).makeShared();
@@ -334,7 +336,7 @@ void parallel_tail(LAYER &layer, int thread_id, LAYER &next_layer)
                     if (loop == 0)
                     {
                         pcl::PointCloud<PointType>::Ptr pc(new pcl::PointCloud<PointType>);
-                        mypcl::loadPCD(layer.data_path, pcd_name_fill_num, pc, j, "pcd/");
+                        mypcl::loadPCD(layer.data_path, pcd_name_fill_num, pc, j, pcd_prefix);
                         raw_pc[j - i * GAP] = pc;
                     }
                     src_pc[j - i * GAP] = (*raw_pc[j - i * GAP]).makeShared();
@@ -517,11 +519,13 @@ int main(int argc, char **argv)
     ros::NodeHandle nh("~");
 
     int total_layer_num, thread_num;
-    string data_path;
+    string data_path, pose_file_name;
 
     ros::param::param("common/total_layer_num", total_layer_num, 3);
     ros::param::param("common/pcd_name_fill_num", pcd_name_fill_num, 6);
     ros::param::param("common/data_path", data_path, std::string(""));
+    ros::param::param("common/pcd_prefix", pcd_prefix, std::string("pcd/"));
+    ros::param::param("common/pose_file_name", pose_file_name, std::string("pose.txt"));
     ros::param::param("common/thread_num", thread_num, 16);
     ros::param::param("common/layer_limit", layer_limit, 2);
     ros::param::param("common/downsample_size", _downsample_size, 0.1);
@@ -529,7 +533,7 @@ int main(int argc, char **argv)
     ros::param::param("common/eigen_ratio", _eigen_ratio, 0.1);
     ros::param::param("common/reject_ratio", _reject_ratio, 0.05);
 
-    HBA hba(total_layer_num, data_path, thread_num);
+    HBA hba(total_layer_num, data_path, pose_file_name, thread_num);
     for (int i = 0; i < total_layer_num - 1; i++)
     {
         std::cout << "---------------------" << std::endl;

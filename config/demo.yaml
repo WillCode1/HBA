@@ -1,5 +1,7 @@
 common:
     data_path: "/home/will/data/HBA/PCD2/"
+    pcd_prefix: "pcd/"
+    pose_file_name: "pose.txt"
     total_layer_num: 3
     pcd_name_fill_num: 6    # set 5 for kitti07 and 0 for park
     thread_num: 16
@@ -10,7 +12,8 @@ common:
     eigen_ratio: 0.1        # threshold used to determine whether this voxel contains valid plane feature.
     reject_ratio: 0.05      # threshold used to reject the largest certain amount of voxels (residuals) used in optimization.
 
-    # 非重合平面之间变为重合的解决方案: 我的建议是试试更严格的参数，比如voxel_size=1m, eigen_ratio=0.05, downsample_size=0.05.
+    # 非重合平面之间变为重合的解决方案: https://github.com/hku-mars/HBA/issues/22
+    # 我的建议是试试更严格的参数，比如voxel_size=1m, eigen_ratio=0.05, downsample_size=0.05.
     # downsample_size: 0.05
     # voxel_size: 1.0
     # eigen_ratio: 0.05

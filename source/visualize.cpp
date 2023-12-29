@@ -43,11 +43,13 @@ int main(int argc, char **argv)
     ros::Publisher pub_trajectory = nh.advertise<visualization_msgs::Marker>("/trajectory_marker", 100);
     ros::Publisher pub_pose_number = nh.advertise<visualization_msgs::MarkerArray>("/pose_number", 100);
 
-    string file_path;
+    string file_path, pcd_prefix, pose_file_name;
     double downsample_size, marker_size;
     int pcd_name_fill_num;
 
     ros::param::param("common/data_path", file_path, std::string(""));
+    ros::param::param("common/pcd_prefix", pcd_prefix, std::string("pcd/"));
+    ros::param::param("common/pose_file_name", pose_file_name, std::string("pose.txt"));
     ros::param::param("common/pcd_name_fill_num", pcd_name_fill_num, 5);
     ros::param::param("visualize/downsample_size", downsample_size, 0.1);
     ros::param::param("visualize/marker_size", marker_size, 0.5);
@@ -55,7 +57,7 @@ int main(int argc, char **argv)
     sensor_msgs::PointCloud2 debugMsg, cloudMsg, outMsg;
     vector<mypcl::pose> pose_vec;
 
-    pose_vec = mypcl::read_pose(file_path + "pose.txt");
+    pose_vec = mypcl::read_pose(file_path + pose_file_name);
     size_t pose_size = pose_vec.size();
     cout << "pose size " << pose_size << endl;
 
@@ -72,7 +74,7 @@ int main(int argc, char **argv)
     getchar();
     for (size_t i = 0; i < pose_size; i++)
     {
-        mypcl::loadPCD(file_path + "pcd/", pcd_name_fill_num, pc_surf, i);
+        mypcl::loadPCD(file_path + pcd_prefix, pcd_name_fill_num, pc_surf, i);
 
         pcl::PointCloud<PointType>::Ptr pc_filtered(new pcl::PointCloud<PointType>);
         pc_filtered->resize(pc_surf->points.size());
