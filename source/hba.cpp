@@ -523,10 +523,13 @@ int main(int argc, char **argv)
     for (int i = 0; i < total_layer_num - 1; i++)
     {
         std::cout << "---------------------" << std::endl;
+        // 1.local BA
         distribute_thread(hba.layers[i], hba.layers[i + 1]);
         hba.update_next_layer_state(i);
     }
+    // 2.global BA
     global_ba(hba.layers[total_layer_num - 1]);
+    // 3.(multilayer) PGO
     hba.pose_graph_optimization();
     printf("iteration complete\n");
 }

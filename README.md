@@ -30,13 +30,13 @@ Our paper has been publised on [IEEE RA-L](https://ieeexplore.ieee.org/abstract/
 Our code is tested under [Ubuntu 20.04](https://releases.ubuntu.com/focal/) with [ROS Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) and [Ubuntu 18.04](https://releases.ubuntu.com/18.04/) with [ROS Melodic](https://wiki.ros.org/melodic/Installation/Ubuntu), [PCL 1.10.0](https://github.com/PointCloudLibrary/pcl/releases), [Eigen 3.3.7](https://gitlab.com/libeigen/eigen/-/releases/3.3.7), and [GTSAM 4.1.1](https://github.com/borglab/gtsam).
 
 ### 3.2 File Structure
-To test on your own data, please prepare the file structure as follows: a folder named `pcd` containing point clouds and a `pose.json` file containing the initial poses of each LiDAR scan. Noted the format of the pose is `tx ty tz qw qx qy qz`.
+To test on your own data, please prepare the file structure as follows: a folder named `pcd` containing point clouds and a `pose.txt` file containing the initial poses of each LiDAR scan. Noted the format of the pose is `tx ty tz qw qx qy qz`.
 ```
 .
 ├── pcd
 │   ├── 0.pcd
 │   └── 1.pcd
-└── pose.json
+└── pose.txt
 ```
 ### 3.3 Important Parameters
 #### in `hba.launch` file

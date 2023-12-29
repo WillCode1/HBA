@@ -11,7 +11,7 @@
 #include "tools.hpp"
 
 #define WIN_SIZE 10
-#define GAP 5
+#define GAP 5           // stride size
 #define AVG_THR
 #define FULL_HESS
 // #define ENABLE_RVIZ
@@ -19,7 +19,7 @@
 
 const double one_three = (1.0 / 3.0);
 
-int layer_limit = 2;
+int layer_limit = 2;    // the maximum number of voxel recut times in LiDAR BA.
 int MIN_PT = 15;
 int thd_num = 16;
 

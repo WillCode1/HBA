@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     sensor_msgs::PointCloud2 debugMsg, cloudMsg, outMsg;
     vector<mypcl::pose> pose_vec;
 
-    pose_vec = mypcl::read_pose(file_path + "pose.json");
+    pose_vec = mypcl::read_pose(file_path + "pose.txt");
     size_t pose_size = pose_vec.size();
     cout << "pose size " << pose_size << endl;
 
