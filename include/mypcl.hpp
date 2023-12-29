@@ -9,6 +9,7 @@
 #include <Eigen/StdVector>
 
 #define USE_RTK
+// #define TUM_FORMAT
 
 typedef std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>> vector_vec3d;
 typedef std::vector<Eigen::Quaterniond, Eigen::aligned_allocator<Eigen::Quaterniond>> vector_quad;
@@ -21,8 +22,9 @@ namespace mypcl
 {
     struct pose
     {
-        pose(Eigen::Quaterniond _q = Eigen::Quaterniond(1, 0, 0, 0),
-             Eigen::Vector3d _t = Eigen::Vector3d(0, 0, 0)) : q(_q), t(_t) {}
+        pose(double _timestamp = 0, Eigen::Quaterniond _q = Eigen::Quaterniond(1, 0, 0, 0),
+             Eigen::Vector3d _t = Eigen::Vector3d(0, 0, 0)) : timestamp(_timestamp), q(_q), t(_t) {}
+        double timestamp;
         Eigen::Quaterniond q;
         Eigen::Vector3d t;
     };
@@ -55,13 +57,23 @@ namespace mypcl
         std::vector<pose> pose_vec;
         std::fstream file;
         file.open(filename);
-        double tx, ty, tz, w, x, y, z;
+#ifdef TUM_FORMAT
+        // remove header
+        char header[200] = {0};
+        file.getline(header, 200);
+        file.getline(header, 200);
+#endif
+        double timestamp, tx, ty, tz, qw, qx, qy, qz;
         while (!file.eof())
         {
-            file >> tx >> ty >> tz >> w >> x >> y >> z;
-            Eigen::Quaterniond q(w, x, y, z);
+#ifdef TUM_FORMAT
+            file >> timestamp >> tx >> ty >> tz >> qx >> qy >> qz >> qw;
+#else
+            file >> tx >> ty >> tz >> qw >> qx >> qy >> qz;
+#endif
+            Eigen::Quaterniond q(qw, qx, qy, qz);
             Eigen::Vector3d t(tx, ty, tz);
-            pose_vec.push_back(pose(qe * q, qe * t + te));
+            pose_vec.push_back(pose(timestamp, qe * q, qe * t + te));
         }
         file.close();
         return pose_vec;
@@ -146,14 +158,23 @@ namespace mypcl
         Eigen::Vector3d t0(pose_vec[0].t(0), pose_vec[0].t(1), pose_vec[0].t(2));
         file.open(path + "pose.txt", std::ofstream::app);
 
+#ifdef TUM_FORMAT
+        file << "# keyframe trajectory HBA optimized\n# timestamp tx ty tz qx qy qz qw\n";
+#endif
+
         for (size_t i = 0; i < pose_vec.size(); i++)
         {
 #ifndef USE_RTK
             pose_vec[i].t << q0.inverse() * (pose_vec[i].t - t0);
             pose_vec[i].q = q0.inverse() * pose_vec[i].q;
 #endif
-            file << pose_vec[i].t(0) << " " << pose_vec[i].t(1) << " " << pose_vec[i].t(2) << " "
+#ifdef TUM_FORMAT
+            file << pose_vec[i].timestamp << " " << pose_vec[i].t.x() << " " << pose_vec[i].t.y() << " " << pose_vec[i].t.z() << " "
+                 << pose_vec[i].q.x() << " " << pose_vec[i].q.y() << " " << pose_vec[i].q.z() << " " << pose_vec[i].q.w();
+#else
+            file << pose_vec[i].t.x() << " " << pose_vec[i].t.y() << " " << pose_vec[i].t.z() << " "
                  << pose_vec[i].q.w() << " " << pose_vec[i].q.x() << " " << pose_vec[i].q.y() << " " << pose_vec[i].q.z();
+#endif
             if (i < pose_vec.size() - 1)
                 file << "\n";
         }
