@@ -523,6 +523,10 @@ int main(int argc, char **argv)
     int total_layer_num, thread_num;
     string data_path, pose_file_name;
 
+    bool enable_mme = false;
+    int threads_num;
+    double downsample_size_mme, search_radius;
+
     ros::param::param("common/total_layer_num", total_layer_num, 3);
     ros::param::param("common/pcd_name_fill_num", pcd_name_fill_num, 6);
     ros::param::param("common/data_path", data_path, std::string(""));
@@ -534,6 +538,11 @@ int main(int argc, char **argv)
     ros::param::param("common/voxel_size", _voxel_size, 4.0);
     ros::param::param("common/eigen_ratio", _eigen_ratio, 0.1);
     ros::param::param("common/reject_ratio", _reject_ratio, 0.05);
+
+    ros::param::param("mme/enable_mme", enable_mme, true);
+    ros::param::param("mme/downsample_size", downsample_size_mme, 0.1);
+    ros::param::param("mme/search_radius", search_radius, 0.3);
+    ros::param::param("mme/threads_num", threads_num, 20);
 
     HBA hba(total_layer_num, data_path, pose_file_name, thread_num);
     for (int i = 0; i < total_layer_num - 1; i++)
@@ -549,29 +558,31 @@ int main(int argc, char **argv)
     hba.pose_graph_optimization();
     printf("iteration complete\n");
 
-#if 1
-    printf("calculate mme!\n");
-    pcl::PointCloud<PointType>::Ptr pc_map(new pcl::PointCloud<PointType>);
-    for (auto i = 0; i < hba.layers[0].pose_vec.size(); ++i)
+    if (enable_mme)
     {
-        pcl::PointCloud<PointType>::Ptr pc(new pcl::PointCloud<PointType>);
-        pcl::PointCloud<PointType>::Ptr pc_world(new pcl::PointCloud<PointType>);
-        mypcl::loadPCD(data_path, pcd_name_fill_num, pc, i, pcd_prefix);
-        pointcloudLidarToWorld(pc, pc_world, hba.layers[0].pose_vec[i].q.toRotationMatrix(), hba.layers[0].pose_vec[i].t);
-        *pc_map += *pc_world;
+        printf("calculate mme!\n");
+        pcl::PointCloud<PointType>::Ptr pc_map(new pcl::PointCloud<PointType>);
+        for (auto i = 0; i < hba.layers[0].pose_vec.size(); ++i)
+        {
+            pcl::PointCloud<PointType>::Ptr pc(new pcl::PointCloud<PointType>);
+            pcl::PointCloud<PointType>::Ptr pc_world(new pcl::PointCloud<PointType>);
+            mypcl::loadPCD(data_path, pcd_name_fill_num, pc, i, pcd_prefix);
+            pointcloudLidarToWorld(pc, pc_world, hba.layers[0].pose_vec[i].q.toRotationMatrix(), hba.layers[0].pose_vec[i].t);
+            *pc_map += *pc_world;
+        }
+        // std::cout << pc_map->size() << std::endl;
+        // pcl::io::savePCDFileBinary(data_path + "pc_map.pcd", *pc_map);
+
+        octreeDownsampling(pc_map, pc_map, downsample_size_mme);
+        // std::cout << pc_map->size() << std::endl;
+        // pcl::io::savePCDFileBinary(data_path + "pc_map.pcd", *pc_map);
+
+        Timer timer;
+        timer.start();
+        PointCloudMapQualityEvaluation mqe;
+        mqe.LoadMap(*pc_map);
+        std::cout << "\033[0;32m"
+                  << "mme = " << mqe.CalculateMeanMapEntropyMetrics(search_radius, threads_num) << "\033[0m" << std::endl;
+        timer.elapsedByLast();
     }
-    // std::cout << pc_map->size() << std::endl;
-    // pcl::io::savePCDFileBinary(data_path + "pc_map.pcd", *pc_map);
-
-    octreeDownsampling(pc_map, pc_map, 0.1);
-    // std::cout << pc_map->size() << std::endl;
-    // pcl::io::savePCDFileBinary(data_path + "pc_map.pcd", *pc_map);
-
-    Timer timer;
-    timer.start();
-    PointCloudMapQualityEvaluation mqe;
-    mqe.LoadMap(*pc_map);
-    std::cout << "mme = " << mqe.CalculateMeanMapEntropyMetrics(0.3) << std::endl;
-    timer.elapsedByLast();
-#endif
 }

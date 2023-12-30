@@ -12,6 +12,12 @@ common:
     eigen_ratio: 0.1        # threshold used to determine whether this voxel contains valid plane feature.
     reject_ratio: 0.05      # threshold used to reject the largest certain amount of voxels (residuals) used in optimization.
 
+mme:
+    enable_mme: false
+    downsample_size: 0.1
+    search_radius: 0.3
+    threads_num: 20
+
 visualize:
     downsample_size: 0.1
     marker_size: 0.5
