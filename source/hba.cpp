@@ -547,8 +547,10 @@ int main(int argc, char **argv)
     global_ba(hba.layers[total_layer_num - 1]);
     // 3.(multilayer) PGO
     hba.pose_graph_optimization();
+    printf("iteration complete\n");
 
 #if 1
+    printf("calculate mme!\n");
     pcl::PointCloud<PointType>::Ptr pc_map(new pcl::PointCloud<PointType>);
     for (auto i = 0; i < hba.layers[0].pose_vec.size(); ++i)
     {
@@ -572,6 +574,4 @@ int main(int argc, char **argv)
     std::cout << "mme = " << mqe.CalculateMeanMapEntropyMetrics(0.3) << std::endl;
     timer.elapsedByLast();
 #endif
-
-    printf("iteration complete\n");
 }
