@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <pcl/octree/octree_pointcloud_voxelcentroid.h>
 #include <math.h>
 
 #define HASH_P 116101
@@ -320,6 +321,20 @@ inline void pointcloudLidarToWorld(const pcl::PointCloud<PointType>::Ptr cloud_i
     {
         pointLidarToWorld(cloud_in->points[i], cloud_out->points[i], lidar_rot, lidar_pos);
     }
+}
+
+inline void octreeDownsampling(const pcl::PointCloud<PointType>::Ptr &src, pcl::PointCloud<PointType>::Ptr &map_ds, const double &save_resolution)
+{
+    pcl::octree::OctreePointCloudVoxelCentroid<PointType> octree(save_resolution);
+    octree.setInputCloud(src);
+    octree.defineBoundingBox();
+    octree.addPointsFromInputCloud();
+    pcl::octree::OctreePointCloudVoxelCentroid<PointType>::AlignedPointTVector centroids;
+    octree.getVoxelCentroids(centroids);
+
+    map_ds->points.assign(centroids.begin(), centroids.end());
+    map_ds->width = 1;
+    map_ds->height = map_ds->points.size();
 }
 
 void pl_transform(pcl::PointCloud<PointType> &pl1, const Eigen::Matrix3d &rr, const Eigen::Vector3d &tt)
