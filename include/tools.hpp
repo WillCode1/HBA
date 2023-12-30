@@ -299,6 +299,29 @@ void downsample_voxel(pcl::PointCloud<PointType> &pc, double voxel_size)
     }
 }
 
+inline void pointLidarToWorld(PointType const &pi, PointType &po, const Eigen::Matrix3d &lidar_rot, const Eigen::Vector3d &lidar_pos)
+{
+    Eigen::Vector3d p_lidar(pi.x, pi.y, pi.z);
+    Eigen::Vector3d p_global(lidar_rot * p_lidar + lidar_pos);
+
+    po.x = p_global(0);
+    po.y = p_global(1);
+    po.z = p_global(2);
+}
+
+inline void pointcloudLidarToWorld(const pcl::PointCloud<PointType>::Ptr cloud_in, pcl::PointCloud<PointType>::Ptr cloud_out,
+                                   const Eigen::Matrix3d &lidar_rot, const Eigen::Vector3d &lidar_pos)
+{
+    auto cloud_num = cloud_in->points.size();
+    cloud_out->resize(cloud_num);
+
+#pragma omp parallel for num_threads(4)
+    for (int i = 0; i < cloud_num; i++)
+    {
+        pointLidarToWorld(cloud_in->points[i], cloud_out->points[i], lidar_rot, lidar_pos);
+    }
+}
+
 void pl_transform(pcl::PointCloud<PointType> &pl1, const Eigen::Matrix3d &rr, const Eigen::Vector3d &tt)
 {
     for (PointType &ap : pl1.points)

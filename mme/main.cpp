@@ -1,15 +1,16 @@
-#include "MeanMapEntropyMetrics.h"
+#include "PointCloudMapQualityEvaluation.h"
 #include "Timer.hpp"
 #include <iostream>
 
 int main()
 {
-    MeanMapEntropyMetrics mme;
-    mme.LoadGtMap("/home/will/data/test/old_updated_map_filtered/pcd/filtered_map.pcd");
-    mme.LoadCurMap("/home/will/data/test/filtered_pointcloud_map/pcd/filtered_map.pcd");
+    PointCloudMapQualityEvaluation mqe;
+    mqe.LoadMap("/home/will/code/slam/catkin_ws/src/fastlio_localization/PCD/static_map_full.pcd");
     Timer timer;
     timer.start();
-    mme.Metrics(0.4, 0.2);
+
+    std::cout << "mme = " << mqe.CalculateMeanMapEntropyMetrics(0.3) << std::endl;
+
     timer.elapsedByLast();
     return 0;
 }

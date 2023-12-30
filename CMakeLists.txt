@@ -2,14 +2,9 @@ cmake_minimum_required(VERSION 3.0.2)
 project(hba)
 
 set(CMAKE_BUILD_TYPE "Release")
-ADD_COMPILE_OPTIONS(-std=c++17)
 set(CMAKE_CXX_FLAGS "-std=c++17 -O3" )
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexceptions")
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++0x -std=c++17 -fexceptions")
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -20,6 +15,10 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   tf
 )
+
+find_package(OpenMP QUIET)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}   ${OpenMP_C_FLAGS}")
 
 find_package(PCL REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -48,3 +47,6 @@ target_link_libraries(hba ${catkin_LIBRARIES} ${PCL_LIBRARIES} gtsam)
 
 add_executable(visualize_map source/visualize.cpp)
 target_link_libraries(visualize_map ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(mme mme/main.cpp)
+target_link_libraries(mme ${catkin_LIBRARIES} ${PCL_LIBRARIES})
