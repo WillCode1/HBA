@@ -184,7 +184,7 @@ public:
                 }
     }
 
-    void pose_graph_optimization()
+    std::vector<mypcl::pose> pose_graph_optimization(gtsam::Values& results)
     {
         std::vector<mypcl::pose> upper_pose, init_pose;
         upper_pose = layers[total_layer_num - 1].pose_vec;
@@ -264,7 +264,7 @@ public:
         isam.update(graph, initial);
         isam.update();
 
-        gtsam::Values results = isam.calculateEstimate();
+        results = isam.calculateEstimate();
 
         cout << "vertex size " << results.size() << endl;
 
@@ -273,7 +273,7 @@ public:
             gtsam::Pose3 pose = results.at(i).cast<gtsam::Pose3>();
             assign_qt(init_pose[i].q, init_pose[i].t, Eigen::Quaterniond(pose.rotation().matrix()), pose.translation());
         }
-        mypcl::write_pose(init_pose, data_path + pose_file_name);
         printf("pgo complete\n");
+        return init_pose;
     }
 };

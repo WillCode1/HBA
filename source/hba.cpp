@@ -523,7 +523,7 @@ int main(int argc, char **argv)
     int total_layer_num, thread_num;
     string data_path, pose_file_name;
 
-    bool enable_mme = false;
+    bool enable_mme = false, save_trajectory = false;
     int threads_num;
     double downsample_size_mme, search_radius;
 
@@ -538,6 +538,7 @@ int main(int argc, char **argv)
     ros::param::param("common/voxel_size", _voxel_size, 4.0);
     ros::param::param("common/eigen_ratio", _eigen_ratio, 0.1);
     ros::param::param("common/reject_ratio", _reject_ratio, 0.05);
+    ros::param::param("common/save_trajectory", save_trajectory, false);
 
     ros::param::param("mme/enable_mme", enable_mme, true);
     ros::param::param("mme/downsample_size", downsample_size_mme, 0.1);
@@ -555,27 +556,46 @@ int main(int argc, char **argv)
     // 2.global BA
     global_ba(hba.layers[total_layer_num - 1]);
     // 3.(multilayer) PGO
-    hba.pose_graph_optimization();
+    gtsam::Values results;
+    auto optimized_pose = hba.pose_graph_optimization(results);
+    mypcl::write_pose(optimized_pose, data_path + pose_file_name);
     printf("iteration complete\n");
+
+    if (save_trajectory)
+    {
+        printf("save optimized pose trajectory!\n");
+        pcl::PointCloud<PointXYZIRPYT> keyframe_pose6d_optimized;
+        for (int i = 0; i < results.size(); ++i)
+        {
+            PointXYZIRPYT point;
+            point.x = results.at<gtsam::Pose3>(i).translation().x();
+            point.y = results.at<gtsam::Pose3>(i).translation().y();
+            point.z = results.at<gtsam::Pose3>(i).translation().z();
+            point.roll = results.at<gtsam::Pose3>(i).rotation().roll();
+            point.pitch = results.at<gtsam::Pose3>(i).rotation().pitch();
+            point.yaw = results.at<gtsam::Pose3>(i).rotation().yaw();
+            point.time = optimized_pose[i].timestamp;
+            keyframe_pose6d_optimized.push_back(point);
+        }
+
+        pcl::PCDWriter pcd_writer;
+        pcd_writer.writeBinary(data_path + "trajectory.pcd", keyframe_pose6d_optimized);
+    }
 
     if (enable_mme)
     {
         printf("calculate mme!\n");
         pcl::PointCloud<PointType>::Ptr pc_map(new pcl::PointCloud<PointType>);
-        for (auto i = 0; i < hba.layers[0].pose_vec.size(); ++i)
+        for (auto i = 0; i < optimized_pose.size(); ++i)
         {
             pcl::PointCloud<PointType>::Ptr pc(new pcl::PointCloud<PointType>);
             pcl::PointCloud<PointType>::Ptr pc_world(new pcl::PointCloud<PointType>);
             mypcl::loadPCD(data_path, pcd_name_fill_num, pc, i, pcd_prefix);
-            pointcloudLidarToWorld(pc, pc_world, hba.layers[0].pose_vec[i].q.toRotationMatrix(), hba.layers[0].pose_vec[i].t);
+            pointcloudLidarToWorld(pc, pc_world, optimized_pose[i].q.toRotationMatrix(), optimized_pose[i].t);
             *pc_map += *pc_world;
         }
-        // std::cout << pc_map->size() << std::endl;
-        // pcl::io::savePCDFileBinary(data_path + "pc_map.pcd", *pc_map);
 
         octreeDownsampling(pc_map, pc_map, downsample_size_mme);
-        // std::cout << pc_map->size() << std::endl;
-        // pcl::io::savePCDFileBinary(data_path + "pc_map.pcd", *pc_map);
 
         Timer timer;
         timer.start();

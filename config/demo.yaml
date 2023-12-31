@@ -18,6 +18,8 @@ common:
     # voxel_size: 1.0
     # eigen_ratio: 0.05
 
+    save_trajectory: true
+
 mme:
     enable_mme: true
     downsample_size: 0.1
