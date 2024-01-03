@@ -1,5 +1,6 @@
 common:
-    data_path: "/home/will/data/test_mapping/mapping1/"
+    data_path: "/home/will/data/test_mapping/mapping2/"
+    # data_path: "/home/will/data/HBA/PCD2/"
     pcd_prefix: "keyframe/"
     pose_file_name: "pose.txt"
     total_layer_num: 3
