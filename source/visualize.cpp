@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     parray.header.stamp = cur_t;
     visualization_msgs::MarkerArray markerArray;
 
-    ros::Duration(1).sleep();
+    ros::Duration(2).sleep();
     // cout << "push enter to view" << endl;
     // getchar();
     for (size_t i = 0; i < pose_size; i++)
